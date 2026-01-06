@@ -1,0 +1,42 @@
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LinearRegression
+
+# Load dataset
+data = pd.read_csv("travel_data2.csv")
+
+# Convert travel mode to numbers
+data['mode_num'] = data['mode'].map({
+    'Train': 0,
+    'Bus': 1,
+    'MiniBus': 2,
+    'SharedCab': 3,
+    'Flight': 4
+})
+
+# Features and targets
+X = data[['distance_km']]
+y_mode = data['mode_num']
+y_price = data['price']
+
+# Train models
+mode_model = DecisionTreeClassifier()
+mode_model.fit(X, y_mode)
+
+price_model = LinearRegression()
+price_model.fit(X, y_price)
+
+# Prediction function
+def predict(distance):
+    mode_num = mode_model.predict([[distance]])[0]
+    price = int(price_model.predict([[distance]])[0])
+
+    mode_map = {
+        0: 'Train',
+        1: 'Bus',
+        2: 'MiniBus',
+        3: 'SharedCab',
+        4: 'Flight'
+    }
+
+    return mode_map[mode_num], price
